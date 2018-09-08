@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<title> Insert title here</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+<script type="text/javascript">
+    var gl = null;
+    var canvas = null;
+    var glProgram = null;
+    var fragmentShader = null;
+    var vertexShader = null;
+                
+    window.onload = function() {
+        canvas = document.getElementById("canvas");
+        try {
+            gl = canvas.getContext('webgl');
+        } catch(e) {
+        }
+        
+        if(gl) {
+            setupWebGL();
+            initShaders();
+        } else {    
+            alert('Error: Your browser does not appear to support WebGL.');
+        }
+    };
+
+    function setupWebGL() {
+        gl.clearColor(0.1, 0.5, 0.1, 1.0);  
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+            
+    function initShaders() {
+        var fs_source = 'attribute vec3 aVertexPosition; void main(void) { gl_Position = vec4(aVertexPosition, 1.0); }';
+        var vs_source = 'void main(void) { gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); }';
+
+        vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+        fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+                
+        glProgram = gl.createProgram();
+                
+        gl.attachShader(glProgram, vertexShader);
+        gl.attachShader(glProgram, fragmentShader);
+        gl.linkProgram(glProgram);
+
+        if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+            alert("Unable to initialize the shader program.");
+        }
+                
+        gl.useProgram(glProgram);
+    }
+            
+    function makeShader(src, type) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert('Error compiling shader: ' + gl.getShaderInfoLog(shader));
+        }
+        return shader;
+    }
+</script>
+</head>
+<body>
+
+<canvas id="canvas" width="400" height="300"></canvas>
+
+</body>
+</html>

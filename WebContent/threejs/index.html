@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title></title>
+<script src="./js/three.min.js"></script>
+<script>
+        window.onload = function() {
+        	//보통은 그냥 쭉 작성하지만 구분을 해본다면
+        	// 전체 화면 설정 - init();
+        	// 그려질 모델 설정 - createMesh();
+        	// 그리기 - draw();
+        	let renderer, scene, camera, mesh;
+        	
+        	let init = () => {
+        		//WebGLRenderer - 3d *일반적으로 많이 사용
+        		//CanvasRenderer - canvas
+        		//SVGRenderer - SVG(Scalable Vector Graphic)
+        		renderer = new THREE.WebGLRenderer({antialias:true});
+        		renderer.setSize(innerWidth, innerHeight);
+        		document.body.appendChild(renderer.domElement);
+        		
+        		
+        		//화면의 구성 요소
+        		// 여러개의 모델, 조명 으로 구성
+        		scene = new THREE.Scene();
+        		
+        		// 그려지는건 똑같고 보는것에따라 달라진다라고 보면된다.
+        		//Camera Angle
+        		//PerspectiveCamera - 3d 카메라 (원근)
+        		// 	fov(file of view) : 시야각
+        		//	비율 : width/height 에 대한 (16:9)
+        		//	최소시야범위
+        		//	최대시야범위        		
+        		//OrthographicCamera - 2d 카메라 (원근X) - 2D game
+        		//	left / right / top / bottom	
+        		//	최소시야범위
+        		//	최대시야범위        		
+        		camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 1, 100000);
+        		//Camera Position Z : 거리
+        		camera.position.z = 1000;
+        	}
+        	
+        	let createMesh = () => {
+        		
+        		//Mesh 
+        		//wireframe(그물망) - geometry
+        		//material (질감)
+        		
+        		// 무언가를 그린다.
+        		let geometry = new THREE.SphereGeometry(200);
+        		//겉 표면의 질감, 색상변화(혼합)
+        		// MeshBasicMaterial
+        		// MeshNormalMaterial
+        		// {MeshXXXXMaterial}
+        		let material = new THREE.MeshBasicMaterial({
+        			color:0x1d6e99,
+        			wireframe: true
+        		});
+        		
+        		//mesh로 병합
+        		mesh = new THREE.Mesh(geometry, material);
+				//화면 구성요소를 추가        		
+        		scene.add(mesh);
+        	}
+        	
+        	let draw = () => {
+        		//동적(60fps)
+        		// 3d : 애니메이션 -> 초당 그려지는 횟수 fps (적어도 60(50)fps 되어야한))
+        		requestAnimationFrame(draw);
+        		
+        		mesh.rotation.x += .01;
+//         		mesh.rotation.y += .01;
+//         		mesh.rotation.z += .01;
+        		
+        		//정적
+        		renderer.render(scene, camera);
+        	}
+        	
+        	init();
+        	createMesh();
+        	draw();
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+
+</html>

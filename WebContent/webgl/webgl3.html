@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <title> Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+    <style type="text/css">
+        body {
+            background-color: grey;
+        }
+
+        canvas {
+            background-color: white;
+        }
+    </style>
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition; attribute vec3 aVertexColor; varying highp vec4 vColor; void main(void) { gl_Position = vec4(aVertexPosition, 1.0); vColor = vec4(aVertexColor, 1.0);
+        gl_PointSize = 5.0; }
+    </script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+        varying highp vec4 vColor; void main(void) { gl_FragColor = vColor; }
+    </script>
+    <script type="text/javascript">
+        var gl = null;
+        var canvas = null;
+        var glProgram = null;
+        var fragmentShader = null;
+        var vertexShader = null;
+
+        var vertexPositionAttribute = null;
+        var trianglesVerticeBuffer = null;
+
+
+        var vertexColorAttribute = null;
+        var trianglesColorBuffer = null;
+        
+
+        window.onload = function() {
+            canvas = document.getElementById("canvas");
+            try {
+                gl = canvas.getContext('webgl');
+            } catch (e) {}
+
+            if (gl) {
+                setupWebGL();
+                initShaders();
+                setupBuffers();
+                drawScene();
+            } else {
+                alert('Error: Your browser does not appear to support WebGL.');
+            }
+        };
+
+
+        function setupWebGL() {
+            gl.clearColor(0.1, 0.5, 0.1, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            
+            //2d를 보기위해 카메라가보는 관점을 변화시킨다고 생각하면됨.
+//            gl.vewport(0, 0, canvas.width, canvas.height)
+            gl.viewport(canvas.width/2.0, canvas.height/2.0, canvas.width/2.0, canvas.height/2.0);
+        }
+
+        function initShaders() {
+            var fs_source = document.getElementById('shader-fs').innerHTML;
+            var vs_source = document.getElementById('shader-vs').innerHTML;
+            vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+            fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+
+            glProgram = gl.createProgram();
+
+            gl.attachShader(glProgram, vertexShader);
+            gl.attachShader(glProgram, fragmentShader);
+            gl.linkProgram(glProgram);
+            if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+                alert('Unable to initialize the shader program.');
+            }
+            gl.useProgram(glProgram);
+        }
+
+        function makeShader(src, type) {
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, src);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert('Error compiling shader: ' + gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        }
+
+        
+        //메모리상에서만 그려짐
+        function setupBuffers() {
+            var triangleVertices = [
+                //left triangle   
+                -0.5, 0.5, 0.0,
+                0.0, 0.0, 0.0, -0.5, -0.5, 0.0,
+
+                //right triangle
+                0.5, 0.5, 0.0,
+                0.0, 0.0, 0.0,
+                0.5, -0.5, 0.0,
+            ];
+
+            trianglesVerticeBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+
+            var triangleVerticeColors = [
+                //빨간색 왼쪽 사각형
+
+                //R, G, B
+                1.0, 0.0, 0.0,
+                1.0, 1.0, 1.0,
+                1.0, 0.0, 0.0,
+
+                //파란색 오른쪽 삼각형4
+                0.0, 0.0, 1.0,
+                1.0, 1.0, 1.0,
+                0.0, 0.0, 1.0,
+            ];
+
+            trianglesColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColors), gl.STATIC_DRAW);
+        }
+
+
+        function drawScene() {
+            vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+
+            vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
+            gl.enableVertexAttribArray(vertexColorAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            //draw 명령
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+//            gl.drawArrays(gl.POINTS, 0, 6); //gl_PointSize = 5.0; 와 관련있음.
+        }
+        
+    </script>
+</head>
+
+<body>
+    <canvas id="canvas" width="400" height="300">
+Your browser does not support the HTML5 canvas element.
+</canvas>
+</body>
+
+</html>

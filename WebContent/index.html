@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRACKETS 으로 시작하기</title>
+    <script>
+        window.onload = function() {
+            let canvas = document.getElementById("canvas");
+            let context = canvas.getContext("2d");
+
+            function draw_circle(x, y) {
+                context.fillStyle = "#f00";
+                context.beginPath();
+                context.arc(x, y, 10, 0, Math.PI * 2, true);
+                context.fill();
+            }
+
+            function erase_frame() {
+                context.width = context.width;
+            }
+
+            function erase_circle(x, y) {
+                context.clearRect(x - 10, y - 10, 20, 20);
+            }
+
+            let ball_x = 50;
+            let ball_y = 50;
+            let deltat = 1;
+
+            draw_circle(ball_x, ball_y);
+            setInterval(() => {
+                if (ball_x > 100 || ball_y < 15 || ball_x < 15 || ball_y > 100) {
+                    deltat *= -1;
+                }
+                erase_circle(ball_x, ball_y);
+                ball_x += deltat;
+                ball_y += deltat;
+                //            this.erase_frame();
+                draw_circle(ball_x, ball_y);
+            }, 10);
+
+            let imgData = canvas.toDataURL('image/gif');
+            this.saveBase64AsFile(imgData, 'test.png');
+
+
+        };
+
+        function saveBase64AsFile(base64, fileName) {
+            var link = document.createElement("a");
+
+            link.setAttribute("href", base64);
+            link.setAttribute("download", fileName);
+        }
+    </script>
+    <script>
+        window.onload = function() {
+            let canvas = document.getElementById("canvas1");
+            let gl = canvas.getContext("webgl");
+
+            //            gl.clearColor(1.0, 0.0, 0.0, 1.0);
+            //            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            initShaders();
+
+            function initShaders() {
+                var vs_source = 'attribute vec3 aVertexPosition; void main(void) { gl_Position = vec4(aVertexPosition, 1.0); }';
+                var fs_source = 'void main(void) { gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); }';
+
+
+                let vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+                let fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+
+                let glProgram = gl.createProgram();
+
+                gl.attachShader(glProgram, vertexShader);
+                gl.attachShader(glProgram, fragmentShader);
+                gl.linkProgram(glProgram);
+
+                if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+                    console.error("Unable to initialize the shader program.");
+                }
+
+                gl.useProgram(glProgram);
+
+                function makeShader(src, type) {
+                    var shader = gl.createShader(type);
+                    gl.shaderSource(shader, src);
+                    gl.compileShader(shader);
+
+                    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                        console.error('Error compiling shader: ' + gl.getShaderInfoLog(shader));
+                    }
+                    return shader;
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    테스트입니다.
+    <canvas id="canvas" width="300" height="400" style="border: 1px solid black"></canvas>
+    <canvas id="canvas1" width="300" height="400" style="border: 1px solid black"></canvas>
+</body>
+
+
+</html>
